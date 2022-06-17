@@ -37,6 +37,22 @@ public sealed class BowlingGameTest
         g.Score().Should().Be(16);
     }
 
+    [Fact]
+    public void testOneStrike()
+    {
+        RollStrike();
+        g.Roll(3);
+        g.Roll(4);
+        RollMany(16, 0);
+
+        g.Score().Should().Be(24);
+    }
+
+    private void RollStrike()
+    {
+        g.Roll(10);
+    }
+
     private void RollSpare()
     {
         g.Roll(5);
@@ -68,14 +84,19 @@ public class Game
         var frameIndex = 0;
         for (int frame = 0; frame < 10; frame++)
         {
-            if (IsSpare(frameIndex))
+            if (IsStrike(frameIndex))
             {
-                score += 10 + rolls[frameIndex + 2];
+                score += 10 + StrikeBonus(frameIndex);
+                frameIndex++;
+            }
+            else if (IsSpare(frameIndex))
+            {
+                score += 10 + SpareBonus(frameIndex);
                 frameIndex += 2;
             }
             else
             {
-                score += rolls[frameIndex] + rolls[frameIndex + 1];
+                score += SumOfBallsInFrame(frameIndex);
                 frameIndex += 2;
             }
         }
@@ -83,8 +104,29 @@ public class Game
         return score;
     }
 
+
+    private bool IsStrike(int frameIndex)
+    {
+        return rolls[frameIndex] == 10;
+    }
+
+    private int StrikeBonus(int frameIndex)
+    {
+        return rolls[frameIndex + 1] + rolls[frameIndex + 2];
+    }
+    
     private bool IsSpare(int frameIndex)
     {
         return rolls[frameIndex] + rolls[frameIndex + 1] == 10;
+    }
+
+    private int SpareBonus(int frameIndex)
+    {
+        return rolls[frameIndex + 2];
+    }
+
+    private int SumOfBallsInFrame(int frameIndex)
+    {
+        return rolls[frameIndex] + rolls[frameIndex + 1];
     }
 }
