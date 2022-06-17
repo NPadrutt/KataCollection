@@ -27,6 +27,21 @@ public sealed class BowlingGameTest
 
         g.Score().Should().Be(20);
     }
+    
+    [Fact]
+    public void TestOneSpare()
+    {
+        RollSpare();
+        g.Roll(3);
+    
+        g.Score().Should().Be(16);
+    }
+
+    private void RollSpare()
+    {
+        g.Roll(5);
+        g.Roll(5);
+    }
 
     private void RollMany(int n, int pins)
     {
@@ -39,15 +54,37 @@ public sealed class BowlingGameTest
 
 public class Game
 {
-    private int score;
-    
+    private readonly int[] rolls = new int[21];
+    private int currentRoll;
+
     public void Roll(int pins)
     {
-        score += pins;
+        rolls[currentRoll++] += pins;
     }
 
     public int Score()
     {
+        var score = 0;
+        var frameIndex = 0;
+        for (int frame = 0; frame < 10; frame++)
+        {
+            if (IsSpare(frameIndex))
+            {
+                score += 10 + rolls[frameIndex + 2];
+                frameIndex += 2;
+            }
+            else
+            {
+                score += rolls[frameIndex] + rolls[frameIndex + 1];
+                frameIndex += 2;
+            }
+        }
+        
         return score;
+    }
+
+    private bool IsSpare(int frameIndex)
+    {
+        return rolls[frameIndex] + rolls[frameIndex + 1] == 10;
     }
 }
