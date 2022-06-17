@@ -48,6 +48,14 @@ public sealed class BowlingGameTest
         g.Score().Should().Be(24);
     }
 
+    [Fact]
+    public void TestPerfectGame()
+    {
+        RollMany(12, 10);
+
+        g.Score().Should().Be(300);
+    }
+
     private void RollStrike()
     {
         g.Roll(10);
